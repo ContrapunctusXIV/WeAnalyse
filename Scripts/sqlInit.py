@@ -14,7 +14,7 @@ def MysqlInit(host='localhost', port=3306, user='wechat', passwd='123456', db='w
         mysql_conn.close()
 
 @contextlib.contextmanager
-def SqliteInit(db='MM.sqlite'):
+def SqliteInit(db='../../data/MM.sqlite'):
     sqlite_conn = sqlite3.connect(db)
     sqlite_cur = sqlite_conn.cursor()
     try:
@@ -24,15 +24,5 @@ def SqliteInit(db='MM.sqlite'):
         sqlite_cur.close()
         sqlite_conn.close()
 
-@contextlib.contextmanager
-def GeoSqlInit(db='./geodata/data.sqlite'):
-    sqlite_conn = sqlite3.connect(db)
-    sqlite_cur = sqlite_conn.cursor()
-    try:
-        yield sqlite_cur
-    finally:
-        sqlite_conn.commit()
-        sqlite_cur.close()
-        sqlite_conn.close()    
 if __name__=='__main__':
     pass

@@ -8,11 +8,12 @@ import sqlInit
 def GetWXID(chatroom):
     '''
     返回微信号
+    查询sqlite，速度会比较慢
     '''
     wxid_hashed = {}
     hashed_wxid = {}
     raw_data = {}
-    with sqlInit.SqliteInit(db='WCDB_Contact.sqlite') as sqlite_cur:
+    with sqlInit.SqliteInit(db='../../data/WCDB_Contact.sqlite') as sqlite_cur:
         fetchResult = sqlite_cur.execute("select userName,type,dbContactRemark,dbContactProfile from Friend")
         for row in fetchResult:
             wxid = row[0]
@@ -26,20 +27,28 @@ def GetWXID(chatroom):
     else:
         return ""
 
-def GetRowNum(chatroom,db="sqlite"):
+def GetRowNum(chatroom,db="sqlite",Des=2):
     '''
     返回表的条数
     '''
     rowNum = []
     if db=="mysql":
         with sqlInit.MysqlInit() as mysql_cur:
-            mysql_cur.execute("select count(*) from "+chatroom)
+            if Des == 2:
+                sql = "select count(*) from "+chatroom
+            else:
+                sql = "select count(*) from "+chatroom+" where Des="+str(Des)
+            mysql_cur.execute(sql)
             fetchResult = mysql_cur.fetchall()
             for row in fetchResult:
                 rowNum = row[0]
     else:
         with sqlInit.SqliteInit() as sqlite_cur:
-            fetchResult = sqlite_cur.execute("select count(*) from "+chatroom)
+            if Des == 2:
+                sql = "select count(*) from "+chatroom
+            else:
+                sql = "select count(*) from "+chatroom+" where Des="+str(Des)
+            fetchResult = sqlite_cur.execute(sql)
             for row in fetchResult:
                 rowNum = row[0]
     return int(rowNum)
@@ -49,30 +58,22 @@ def ChatroomType(chatroom):
     返回聊天类型
     返回值：int，1是群组，2是个人，3是公众号
     '''
-    Msgcounter = 0
-    Typecounter = 0
-    if chatroom == "Chat_ffcc9697ac3309e93d80f7773b133f88":
-        return 3 #傻逼腾讯新闻把自己的消息类型（type）全设置成了1
-    elif chatroom == "Chat_2d5de498c19fac1476f42e2428c51e67" or chatroom == "Chat_c376b0ef92a23a9abeac229b752398f2":
-        return 3 #个人原因，如果有些人是复读机，那我建议你把他们视作公众号
+    #有一些系统账号需要排除
+    special_chatroom = ["Chat_c196266f837d14e0b693f961bee37b66","Chat_9e20f478899dc29eb19741386f9343c8","Chat_f609e8364d7d2e09cc229149079efd76","Chat_a971a8ea24a72bb45e64826275fc017f","Chat_03bbbc131de7fa2f8b53f67eff5abc89","Chat_8993f9ceb2f724dc4405db1711c411d5","Chat_30a234cd4741ede59fe93cd9ed1d76d4","Chat_5a7f6c6bdcf1825ccc5fb0007535a694","Chat_418eb42da7dd369038713c81317d6d17","Chat_ffcc9697ac3309e93d80f7773b133f88","Chat_7fe3dd8f21a72028fe706ebf1ed7316c","Chat_95fc41c839f5aac69f77308240b393a0","Chat_a166f8448e52f66e3223716857672479","Chat_dfdfb8fcb82e634b1be33c02bbf70c4c","Chat_a2283195e3dbccc92d6688df4412d6b8"]
+    #个人原因，如果有些人是复读机，那我建议你把他们视作公众号
+    custom_chatroom = ["Chat_2d5de498c19fac1476f42e2428c51e67","Chat_c376b0ef92a23a9abeac229b752398f2"]
+    if chatroom in special_chatroom:
+        return 3
+    elif chatroom in custom_chatroom:
+        return 3 
     else:
-        with sqlInit.SqliteInit() as sqlite_cur:
-            fetchResult = sqlite_cur.execute("select Message from "+chatroom+" where Type=1 and Des=1 limit 100")
-            for row in fetchResult:
-                if ":" in row[0]:
-                    Msgcounter += 1
-        if Msgcounter/100>0.5: #群组
+        if "@chatroom" in GetWXID(chatroom): #群组
             return 1
         else:
-            with sqlInit.SqliteInit() as sqlite_cur:
-                fetchType = sqlite_cur.execute("select Type from "+chatroom+" where Des=1 limit 100")
-                for row in fetchType:
-                    if row[0] == 49:
-                        Typecounter += 1
-            if Typecounter/100<0.5: #个人
-                return 2
-            else: #公众号
+            if "gh_" == GetWXID(chatroom)[:3]: #公众号
                 return 3
+            else: #个人
+                return 2
 
 def InsertFriends(chatroom, Type):
     '''
@@ -84,7 +85,7 @@ def InsertFriends(chatroom, Type):
 
 def GetGroupData(chatroom):
     '''
-    获取单个群聊的消息
+    将单个群聊的消息导入到数据库
     '''
     pattern1 = re.compile('fromusername.*?"(.*?)"')
     pattern2 = re.compile('"(.*?)"')
@@ -96,7 +97,7 @@ def GetGroupData(chatroom):
             CreateTime = row[1]
             Des = row[3]
             if (Type == 10000) or (Type == 10002) or (Type==1000):
-                if "撤回" in row[2]:
+                if ("撤回" in row[2]) or ("recalled a message" in row[2]):
                     if(len(pattern2.findall(row[2]))>0):
                         SentFrom = pattern2.findall(row[2])[0]
                         Message = "撤回消息"
@@ -131,7 +132,7 @@ def GetGroupData(chatroom):
     
 def GetOthersData(chatroom):
     '''
-    获取单个单聊或公众号的消息
+    将单个单聊或公众号的消息导入到数据库
     '''
     well_tempered_data = []
     with sqlInit.SqliteInit() as sqlite_cur:
@@ -141,8 +142,8 @@ def GetOthersData(chatroom):
             CreateTime = row[1]
             Des = row[3]
             if (Type == 10000) or (Type == 10002):
-                if "撤回" or "has recalled a message" in row[2]:
-                        Message = "撤回消息"
+                if ("撤回" in row[2]) or ("recalled a message" in row[2]):
+                    Message = "撤回消息"
                 else:
                     Message = row[2].replace("\n","")
             else:
@@ -155,10 +156,10 @@ def GetOthersData(chatroom):
 
 def GetGeoData():
     '''
-    获取地理信息数据
+    将地理信息数据导入到数据库
     '''
     geo_dict = {}
-    with sqlInit.GeoSqlInit() as sqlite_cur:
+    with sqlInit.SqliteInit('../../geodata/data.sqlite') as sqlite_cur:
         fetchResult1 = sqlite_cur.execute("select code,name from area")
         for row in fetchResult1:
             if len(row[1])<3:
@@ -254,7 +255,7 @@ def CreateTable(chatroom = "",type = 4):
                     id             int(11)      unsigned   NOT NULL  AUTO_INCREMENT,
                     Type           int(4)       unsigned   NOT NULL,
                     CreateTime     int(11)      unsigned   NOT NULL,
-                    SentFrom       varchar(50),
+                    SentFrom       TEXT,
                     Message        LONGTEXT,
                     Des            tinyint(1)              NOT NULL,
                     PRIMARY KEY ( id ))
@@ -271,10 +272,10 @@ def CreateTable(chatroom = "",type = 4):
     sql_friends = """create table Friends(
                     id             int(11)      unsigned   NOT NULL  AUTO_INCREMENT,
                     Type           int(4)       unsigned   NOT NULL,
-                    EncodeUserName varchar(50),
-                    UserName       varchar(50),
-                    Remark         varchar(50),
-                    Sign           varchar(50),
+                    EncodeUserName TEXT,
+                    UserName       TEXT,
+                    Remark         TEXT,
+                    Sign           TEXT,
                     Location       varchar(50),
                     PRIMARY KEY ( id ))
                     ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"""
@@ -300,8 +301,11 @@ def CreateTable(chatroom = "",type = 4):
                 mysql_cur.execute(sql_group)
             else:
                 mysql_cur.execute(sql_others)
-
-if __name__=='__main__':
+def GetAllChatrooms(rownum=0):
+    '''
+    使用源数据库获取聊天记录名
+    rownum为仅获取条数大于等于这个数的聊天记录，为0时获取所有聊天记录
+    '''
     chatrooms_all = []
     chatrooms = []
     with sqlInit.SqliteInit() as sqlite_cur:
@@ -310,20 +314,32 @@ if __name__=='__main__':
         for row in result:
             if row[0].find("Chat_")!=-1:
                 chatrooms_all.append(row[0])
+    if rownum==0:
+        return chatrooms_all
+    else:
         for chatroom in chatrooms_all:
             rowNum = GetRowNum(chatroom)
-            if rowNum>=100: #对于小于100条的聊天记录，暂时不好判断类型，故不进行统计
+            if rowNum>=rownum:
                 chatrooms.append(chatroom)
-    
+        return chatrooms
+
+if __name__=='__main__':
+    #需要排除的
+    notuse = ["Chat_1eabcb5d2f2bf4e19d064666553495cb","Chat_a2283195e3dbccc92d6688df4412d6b8"]
+    chatrooms = GetAllChatrooms(rownum=0)
+    for i in notuse:
+        chatrooms.remove(i)
     print("将要添加的聊天数："+str(len(chatrooms)))
     CreateTable(chatroom = "",type=4) #联系人表
     for chatroom in chatrooms:
         print(chatroom)
-        if ChatroomType(chatroom) == 1:
+        Type = ChatroomType(chatroom)
+        print(Type)
+        if Type == 1:
             CreateTable(chatroom,1)
             GetGroupData(chatroom)
             InsertFriends(chatroom,1)
-        elif ChatroomType(chatroom) == 2:
+        elif Type == 2:
             CreateTable(chatroom,2)
             GetOthersData(chatroom)
             InsertFriends(chatroom,2)

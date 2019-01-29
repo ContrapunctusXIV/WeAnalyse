@@ -3,28 +3,36 @@ import numpy as np
 import sqlInit
 import toMySQL
 import getChat
+import wordcloudAnalyse
 import time
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
 from datetime import datetime
 from pyecharts import Bar, Line, Grid
-
+def BaseAnalyse():
+    '''
+    总发出消息
+    总接受消息（个人）
+    '''
+    chatrooms = toMySQL.GetAllChatrooms()
+    counter1 = 0
+    counter2 = 0
+    for i in chatrooms:
+        counter1 += toMySQL.GetRowNum(i,db="sqlite",Des=0)
+    for i in chatrooms:
+        counter2 += toMySQL.GetRowNum(i,db="sqlite",Des=1)
+    print(counter1)
+    print(counter2)
 def RowAnalyse():
     '''
     统计聊天条数分布
     '''
-    chatrooms_all = []
+    chatrooms_all = toMySQL.GetAllChatrooms()
     chatrooms = []
     RowNum = {}
-    with sqlInit.SqliteInit() as sqlite_cur:
-        find_chatrooms = "select name from sqlite_master where type='table'"
-        result = sqlite_cur.execute(find_chatrooms)
-        for row in result:
-            if row[0].find("Chat_")!=-1:
-                chatrooms_all.append(row[0])
-        for chatroom in chatrooms_all:
-            if toMySQL.ChatroomType(chatroom) == 2:
-                chatrooms.append(chatroom)
+    for chatroom in chatrooms_all:
+        if toMySQL.ChatroomType(chatroom) == 2:
+            chatrooms.append(chatroom)
     print("总聊天数："+str(len(chatrooms)))
     for chatroom in chatrooms:
         RowNum[chatroom]=toMySQL.GetRowNum(chatroom)
@@ -43,7 +51,6 @@ def RowAnalyse():
         y_axis,
         yaxis_name="条数",
         is_xaxislabel_align=True
-        # is_xaxis_show=0
     )
     bar_bottom = Bar("条数统计-对数坐标", title_top="60%",title_pos="10%")
     bar_bottom.add(
@@ -53,7 +60,6 @@ def RowAnalyse():
         yaxis_name="条数",
         yaxis_type='log',
         is_xaxislabel_align=True
-        # is_xaxis_show=0
     )
     grid = Grid(width=1920, height=1080)
     grid.add(bar_top, grid_bottom="60%")
@@ -61,11 +67,6 @@ def RowAnalyse():
     grid.render(path="../../output/row_analyse.html")
     grid.render(path="../../output/row_analyse.pdf")
 
-def TopAnimation():
-    chatrooms = getChat.GetChatrooms(typename=1)
-    chatrooms.append(getChat.GetChatrooms(typename=2))
-    for i in chatrooms:
-        getChat.GetData(i,["Type","Message"],0)
 def RowLine():
     '''
     统计聊天条数走势
@@ -93,5 +94,93 @@ def RowLine():
         plt.legend(loc='upper left')
     f.savefig("../../output/RowLine.pdf", bbox_inches='tight')
     plt.show()
+
+def LateChat():
+    '''
+    返回深夜的聊天内容
+    '''
+    # 发出
+    chatrooms_single = getChat.GetChatrooms(typename=2)
+    my_message = []
+    with open("../../output/latechat.txt","w+",encoding="utf-8") as f:
+        for i in chatrooms_single:
+            for j in getChat.GetData(i,["CreateTime","Message","Des","Type"],Desname=2):
+                time_array = time.localtime(j[0])
+                if 1<=time_array[3]<=6:
+                    CreateTime = time.strftime("%Y-%m-%d %H:%M:%S", time_array)
+                    Message = j[1]
+                    if j[2] == 0 and j[3] == 1:
+                        my_message.append(Message)
+                    f.write(i+","+str(j[2])+","+CreateTime+","+Message+"\n")
+    wordcloudAnalyse.Normal(my_message,filename = "WC_to_LateChat", maxwords = 30, title="")
     
-RowLine()
+def MostGroup():
+    '''
+    发信息最多的群聊
+    '''
+    chatrooms_group = getChat.GetChatrooms(typename=1)
+    group_row_dict = {}
+    for i in chatrooms_group:
+        group_row_dict[i] = toMySQL.GetRowNum(i,db="mysql",Des=0)
+    sorted_list = sorted(group_row_dict.items(), key=operator.itemgetter(1),reverse=True)
+    print(sorted_list[0])
+    message_list = []
+    for row in getChat.GetData(sorted_list[0][0],["Message","Type"],Desname=0):
+        if row[1]==1:
+            message_list.append(row[0])
+    wordcloudAnalyse.Normal(message_list,filename = "WC_to_MostGroup", maxwords = 50, title="")
+    
+def MostDay():
+    '''
+    发信息最多的一天
+    '''
+    # 发出
+    chatrooms_group = getChat.GetChatrooms(typename=1)
+    chatrooms_single = getChat.GetChatrooms(typename=2)
+    chatrooms_all = chatrooms_group + chatrooms_single
+    CreateTime_counter = {}
+    for i in chatrooms_all:
+        for j in getChat.GetData(i,["CreateTime"],Desname=0):
+            time_array = time.localtime(j[0])
+            CreateTime = time.strftime("%Y-%m-%d", time_array)
+            if CreateTime in CreateTime_counter:
+                CreateTime_counter[CreateTime] += 1
+            else:
+                CreateTime_counter[CreateTime] = 1
+    sorted_list = sorted(CreateTime_counter.items(), key=operator.itemgetter(1),reverse=True)
+    print(sorted_list[0])
+    
+    format_time1 = sorted_list[0][0]+' 00:00:00'
+    format_time2 = sorted_list[0][0]+' 23:59:59'
+    time1 = int(time.mktime(time.strptime(format_time1, "%Y-%m-%d %H:%M:%S")))
+    time2 = int(time.mktime(time.strptime(format_time2, "%Y-%m-%d %H:%M:%S")))
+    chat_with = {}
+    my_message = []
+
+    with sqlInit.MysqlInit() as mysql_cur:
+        for i in chatrooms_all:
+            temp_list = []
+            sql = "select Message,Des,Type from "+i+" where CreateTime>="+str(time1)+" and CreateTime<="+str(time2)
+            mysql_cur.execute(sql)
+            result = mysql_cur.fetchall()
+            for row in result:
+                if i != "Chat_b7ebbe67d8f64c77cda5415f4d749cc6":
+                    temp_list.append(row[0])
+                if row[1] == 0 and row[2] == 1:
+                    my_message.append(row[0])
+            if len(temp_list)>0:
+                chat_with[i] = temp_list
+
+    with open("../../output/mostday.txt","w+",encoding="utf-8") as f:
+        for key,value in chat_with.items():
+            for i in value:
+                f.write(key+","+i+"\n")
+    wordcloudAnalyse.Normal(my_message,filename = "WC_to_MostDay", maxwords = 10, title=sorted_list[0][0])
+    
+
+if __name__=='__main__':
+    # MostDay()
+    # MostGroup()
+    # LateChat()
+    # RowLine()
+    BaseAnalyse()
