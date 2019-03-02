@@ -1,47 +1,47 @@
 import jieba
 import matplotlib.pyplot as plt
 import PIL.Image as Image
-import getChat
+import basicTool
 import numpy as np
 from pyecharts import WordCloud
-from pyecharts_snapshot.main import make_a_snapshot
+# from pyecharts_snapshot.main import make_a_snapshot
 
-def WordcloudAll(filename = "wc_all", maxwords = 50, Des = 2, typename = 0, title=""):
+def WordcloudAll(chatrooms,filename="wc_all", maxwords=50, Des=2, title=""):
     '''
     filename：str，文件名，存储在output文件夹下
     maxwords：int，最大词云量
-    typename：int，0：全部，1：群组，2：个人，3：公众号
     Des：0：发出，1：接收，2：全部
     '''
-    chatrooms = getChat.GetChatrooms(typename = typename)
     message_list = []
     for chatroom in chatrooms:
-        for row in getChat.GetData(chatroom=chatroom,columns=["Message","Type"],Desname=Des):
+        for row in basicTool.GetData(chatroom=chatroom,columns=["Message","Type","Des"]):
             if row[1]==1:
-                message_list.append(row[0])
+                if row[2]==Des:
+                    message_list.append(row[0])
     Normal(message_list,filename = filename, maxwords = maxwords, title="")
 
-def WordCloudSingle(chatroom,filename = "wc_single",maxwords = 200,Des = 2,from_user="",title=""):
+def WordCloudSingle(chatroom,filename="wc_single",maxwords=200,Des=2,from_user="",title=""):
     '''
-    filename：str，文件名，存储在output文件夹下
+    filename：str，文件名
     maxwords：int，最大词云量
     Des：0：发送，1：接收，2：全部
     '''
     message_list = []
-    for row in getChat.GetData(chatroom=chatroom,columns=["Message","Type","SentFrom"],Desname=Des):
+    for row in basicTool.GetData(chatroom=chatroom,columns=["Message","Type","SentFrom","Des"]):
         if row[1]==1:
-            if from_user=="":
-                counter2 += 1
-                message_list.append(row[0])
-            else:
-                if row[2]==from_user:
+            if row[3]==Des:
+                if from_user=="":
                     counter2 += 1
                     message_list.append(row[0])
+                else:
+                    if row[2]==from_user:
+                        counter2 += 1
+                        message_list.append(row[0])
     Normal(message_list,filename = filename, maxwords = maxwords, title=title)
 
 def Normal(params,filename = "wc_normal",maxwords = 200,title=""):
     '''
-    filename：str，文件名，存储在output文件夹下
+    filename：str，文件名
     maxwords：int，最大词云量
     Des：0：发送，1：接收，2：全部
     '''
@@ -50,8 +50,6 @@ def Normal(params,filename = "wc_normal",maxwords = 200,title=""):
     for row in params:
         counter += 1
         seperated_list.extend(jieba.cut(row))
-
-    print("总条数："+str(counter))
 
     word_id_dict = dict.fromkeys(seperated_list, 0)
     id_counter_dict = dict.fromkeys(range(len(word_id_dict)), 0)
@@ -86,9 +84,14 @@ def Normal(params,filename = "wc_normal",maxwords = 200,title=""):
         frequency.append(i[1])
     wordcloud = WordCloud(title=title,width=1300, height=620,title_top="18%",title_pos="20%",title_text_size="30")
     wordcloud.add("",name, frequency, word_size_range=[20, 100])
-    wordcloud.render("../../output/"+filename+".html")
-    wordcloud.render("../../output/"+filename+".pdf")
+    wordcloud.render(filename+".html")
+    # wordcloud.render(filename+".pdf")
 
-# WordcloudAll(filename="WC_from_all",maxwords=100,Des=1,typename=2)
-# WordcloudAll(filename="WC_to_all_group",maxwords=50,Des=0,typename=1)
-# WordcloudAll(filename="WC_to_all_single",maxwords=100,Des=0,typename=2)
+if __name__=='__main__':
+    chatrooms_group = basicTool.GetChatrooms(typename=1)
+    chatrooms_single = basicTool.GetChatrooms(typename=2)
+    chatrooms_all = chatrooms_group + chatrooms_single
+    WordcloudAll(chatrooms_single,filename="接收词频（个人）（词云图）",maxwords=100,Des=1)
+    WordcloudAll(chatrooms_group,filename="发送词频（群组）（词云图）",maxwords=50,Des=0)
+    WordcloudAll(chatrooms_single,filename="发送词频（个人）（词云图）",maxwords=100,Des=0)
+    WordcloudAll(chatrooms_all,filename="发送词频（全部）（词云图）",maxwords=100,Des=0)

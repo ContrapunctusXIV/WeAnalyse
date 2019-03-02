@@ -98,12 +98,12 @@ def GetGroupData(chatroom):
             Des = row[3]
             if (Type == 10000) or (Type == 10002) or (Type==1000):
                 if ("撤回" in row[2]) or ("recalled a message" in row[2]):
+                    Message = "撤回消息"
                     if(len(pattern2.findall(row[2]))>0):
                         SentFrom = pattern2.findall(row[2])[0]
-                        Message = "撤回消息"
                     else:
                         SentFrom = "我"
-                        Message = "撤回消息"
+                        Des = 0
                 else:
                     SentFrom = "system"
                     Message = row[2].replace("\n","")
@@ -134,6 +134,7 @@ def GetOthersData(chatroom):
     '''
     将单个单聊或公众号的消息导入到数据库
     '''
+    pattern1 = re.compile('"(.*?)"')
     well_tempered_data = []
     with sqlInit.SqliteInit() as sqlite_cur:
         result = sqlite_cur.execute("SELECT Type, CreateTime, Message, Des from "+chatroom)
@@ -144,6 +145,8 @@ def GetOthersData(chatroom):
             if (Type == 10000) or (Type == 10002):
                 if ("撤回" in row[2]) or ("recalled a message" in row[2]):
                     Message = "撤回消息"
+                    if not (len(pattern1.findall(row[2]))>0):
+                        Des = 0
                 else:
                     Message = row[2].replace("\n","")
             else:
