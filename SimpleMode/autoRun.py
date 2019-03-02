@@ -1,3 +1,4 @@
+import os
 import basicTool
 import basicData
 import timeAnalyse
@@ -5,6 +6,8 @@ import usageAnalyse
 import wordcloudAnalyse
 
 def AutoRun(outputdir = "./outputs"):
+    if not os.path.exists(outputdir):
+        os.mkdir(outputdir)
     print("正在获取聊天数据表...")
     chatrooms_group = basicTool.GetChatrooms(typename=1)
     chatrooms_single = basicTool.GetChatrooms(typename=2)
