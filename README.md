@@ -18,11 +18,11 @@
 
 首先将手机连上电脑，然后打开iTunes，在顶端点击红圈内的位置进入设备管理界面。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image002.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/1.png)
 
 然后点击红圈内的立即备份，随后顶端会显示备份进度。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image004.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/2.png)
 
 **备份可能会很久。并且，由于备份只能存在C盘，所以需要确保C盘有20G以上的空间。**
 
@@ -36,7 +36,7 @@ https://pro.itools.cn/itools3
 
 注意安装时请不要勾选这玩意：
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image006.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/3.png)
 
 准备工作到此为止，下面等待之前的备份完成即可。
 
@@ -44,7 +44,7 @@ https://pro.itools.cn/itools3
 
 完成备份后，打开iTools，点击工具箱->iTunes备份管理->双击打开备份，你应该能看到这个界面
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image012.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/4.png)
 
 复制这个路径到红线上方的空白处：
 
@@ -54,11 +54,11 @@ https://pro.itools.cn/itools3
 
 我们需要关注的是红圈圈住的那几个文件夹，具体名字与你看到的应该不一样，但格式都是一长串字母与数字的组合（实际上是你微信号的md5值）。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image014.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/5.png)
 
 如果你的手机上登陆过多个微信账号，那么这种文件夹也有多个。我们需要的是这几个文件夹下 “DB”文件夹中的MM.sqlite和WCDB_Contact.sqlite两个文件。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image016.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/6.png)
 
 由于我的另外两个账号都是临时登录的，聊天记录很少，所以根据文件大小很容易看出哪个是我的账号的数据。如果你无法通过这种方法分辨，那还是全部都提取出来吧。
 
@@ -66,15 +66,15 @@ https://pro.itools.cn/itools3
 
 提取的方法是选择这两个文件然后点击左上方的导出，然后选择目标文件夹即可。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image018.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/7.png)
 
 提取整个WeAnalyse-master文件夹。
 
 在这个文件夹里新建一个data文件夹，把刚才导出的微信数据放进去。
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image020.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/8.png)
 
-![img](file:///C:/Users/HE/AppData/Local/Temp/msohtmlclip1/01/clip_image022.png)
+![img](https://github.com/ContrapunctusXIV/WeAnalyse/tree/master/images/9.png)
 
 最后一步：
 
