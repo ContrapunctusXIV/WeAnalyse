@@ -144,7 +144,7 @@ def Lonelydude(chatrooms,filename="lonelydude"):
                 if len(temp_list)>0:
                     no_reply_with[j] = temp_list
 
-    with open("./outputs/"+filename+".txt","w+",encoding="utf-8") as f:
+    with open(filename+".txt","w+",encoding="utf-8") as f:
         f.write("未收到回复："+",".join(no_response)+"\n")
         f.write("未回复对方："+",".join(no_reply)+"\n")
         f.write("未获得回复：\n")
