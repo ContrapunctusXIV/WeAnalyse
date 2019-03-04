@@ -15,8 +15,6 @@ https://mp.weixin.qq.com/s/Ff_4GM1vC4W-KmPpGPOalQ
 
 当然，如果自己有备用的iPhone或iPad，也可以从安卓机迁移过去（非常简单）。
 
-
-
 ### 使用难度如何？
 
 这个版本（使用的都是SimpleMode中的方法）是为非开发者设计的，所以只要你小学毕业了，那么应该都能无障碍使用。因此，请坐和放宽 :)
@@ -31,7 +29,7 @@ Python 3
 
 ### 使用说明
 
-首先将手机连上电脑，然后打开iTunes，在顶端点击红圈内的位置进入设备管理界面。
+将手机连上电脑，然后打开iTunes，在顶端点击红圈内的位置进入设备管理界面。
 
 ![](https://raw.githubusercontent.com/ContrapunctusXIV/WeAnalyse/master/images/1.png)
 
@@ -83,7 +81,7 @@ https://pro.itools.cn/itools3
 
 ![](https://raw.githubusercontent.com/ContrapunctusXIV/WeAnalyse/master/images/7.png)
 
-提取整个WeAnalyse-master文件夹。
+下载本项目的ZIP包，提取整个WeAnalyse-master文件夹。
 
 在这个文件夹里新建一个data文件夹，把刚才导出的微信数据放进去。
 
