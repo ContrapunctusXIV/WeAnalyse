@@ -169,9 +169,6 @@ def RowLine(chatrooms,filename):
     font = {'family' : 'DengXian'}
     plt.rc('font', **font)
     ax=plt.gca()
-    # ax.set_title('This is a special font: 😄', fontproperties=prop)
-    # ax.set_xlabel('This is the default font', fontproperties=prop)
-    # ax.set_title('This is some random font😄', fontproperties=font0, size=32)
     for key,value in id_time_dict.items():
         dateframe_x = [datetime.fromtimestamp(i) for i in value[:,1]]
         x = md.date2num(dateframe_x)
