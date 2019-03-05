@@ -1,5 +1,8 @@
 import time
+import os
 from datetime import datetime
+from matplotlib.font_manager import FontProperties
+from matplotlib import rcParams
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
 import numpy as np
@@ -53,19 +56,19 @@ def Normal(params,chartname="",filename="time_ana"):
         time_list.append(output_data)
 
     time_tree_5min = np.zeros((7,24,12))
-    time_tree_10min = np.zeros((7,24,6))
-    time_tree_30min = np.zeros((7,24,2))
+    # time_tree_10min = np.zeros((7,24,6))
+    # time_tree_30min = np.zeros((7,24,2))
     for i in time_list:
         time_tree_5min[i[1],i[2],int(i[3]/5)] = time_tree_5min[i[1],i[2],int(i[3]/5)] + 1
         # time_tree_10min[i[1],i[2],int(i[3]/10)] = time_tree_10min[i[1],i[2],int(i[3]/10)] + 1
         # time_tree_30min[i[1],i[2],int(i[3]/30)] = time_tree_30min[i[1],i[2],int(i[3]/30)] + 1
 
     days_5min = []
-    days_10min = []
-    days_30min = []
+    # days_10min = []
+    # days_30min = []
     range_5min = []
-    range_10min = []
-    range_30min = []
+    # range_10min = []
+    # range_30min = []
     week_title = ["星期日","星期一","星期二","星期三","星期四","星期五","星期六"]
     for i in week_title:
         for j in range(24):
@@ -160,21 +163,34 @@ def RowLine(chatrooms,filename):
 
     f = plt.figure(figsize=(16, 9))
     plt.grid(True)
+    # font0 = FontProperties(fname='./Symbola.ttf')
+
+    # prop = FontProperties(fname="./Symbola.ttf")
+    font = {'family' : 'DengXian'}
+    plt.rc('font', **font)
+    ax=plt.gca()
+    # ax.set_title('This is a special font: 😄', fontproperties=prop)
+    # ax.set_xlabel('This is the default font', fontproperties=prop)
+    # ax.set_title('This is some random font😄', fontproperties=font0, size=32)
     for key,value in id_time_dict.items():
         dateframe_x = [datetime.fromtimestamp(i) for i in value[:,1]]
         x = md.date2num(dateframe_x)
         y = value[:,0]
-        ax=plt.gca()
+        # ax=plt.gca()
         xfmt = md.DateFormatter('%Y-%m-%d')
         ax.xaxis.set_major_formatter(xfmt)
+        # plt.plot(x,y)
         plt.plot(x,y,label=basicTool.GetName(key))
+        # plt.xlabel(basicTool.GetName(key),fontname='symbola')
         plt.legend(loc='upper left')
+
+    plt.show()
     f.savefig(filename+".pdf", bbox_inches='tight')
 
 if __name__=='__main__':
-    chatrooms_group = basicTool.GetChatrooms(typename=1)
+    # chatrooms_group = basicTool.GetChatrooms(typename=1)
     chatrooms_single = basicTool.GetChatrooms(typename=2)
-    chatrooms_all = chatrooms_group + chatrooms_single
-    TimeAll(chatrooms_single, chartname="时频分布-接收（个人）",filename="时频分布-接收（个人）（柱状图）",Des=1)
-    TimeAll(chatrooms_all, chartname="时频分布-发出（全部）",filename="时频分布-发出（全部）（柱状图）",Des=0)
+    # chatrooms_all = chatrooms_group + chatrooms_single
+    # TimeAll(chatrooms_single, chartname="时频分布-接收（个人）",filename="时频分布-接收（个人）（柱状图）",Des=1)
+    # TimeAll(chatrooms_all, chartname="时频分布-发出（全部）",filename="时频分布-发出（全部）（柱状图）",Des=0)
     RowLine(chatrooms_single,filename="总量走势（折线图）")
