@@ -181,7 +181,7 @@ def RowLine(chatrooms,filename):
         # plt.xlabel(basicTool.GetName(key),fontname='symbola')
         plt.legend(loc='upper left')
 
-    plt.show()
+    # plt.show()
     f.savefig(filename+".pdf", bbox_inches='tight')
 
 if __name__=='__main__':
