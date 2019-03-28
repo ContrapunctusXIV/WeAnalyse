@@ -8,6 +8,7 @@ pip install lxml
 pip install matplotlib
 pip install pandas
 pip install pyecharts
+pip install pyecharts-snapshot
 pip install PyMySQL
 
 python ./SimpleMode/autoRun.py
