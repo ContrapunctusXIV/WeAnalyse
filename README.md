@@ -91,9 +91,9 @@ https://pro.itools.cn/itools3
 
 程序运行结束后，可以在outputs文件夹中找到生成的文件。
 
- 
+注：这一步在下载依赖包的时候可能会因为网络问题出错，一般来讲重新运行几次即可。
 
-注：如果报错，可能是Visual C++版本过低（14以上），请在这里下载并安装。
+如果不是网络错误，则可能是Visual C++版本过低（需要14以上），请在这里下载并安装。
 
 <https://download.visualstudio.microsoft.com/download/pr/e9e1e87c-5bba-49fa-8bad-e00f0527f9bc/8e641901c2257dda7f0d3fd26541e07a/vc_redist.x86.exe>
 
