@@ -35,19 +35,26 @@ def GetWXID(chatroom):
         return hashed_wxid[chatroom]
     else:
         return ""
-def GetName(chatroom):
+def GetName(attr):
     '''
     返回昵称或群名称
     '''
+    if "Chat_" in attr:
+        WXID = GetWXID(attr)
+    else:
+        WXID = attr
+    name = WXID
     with SqliteInit(db='./data/WCDB_Contact.sqlite') as sqlite_cur:
-        WXID = GetWXID(chatroom)
-        sqlite_cur.execute("select dbContactRemark,dbContactChatRoom from Friend where userName='"+WXID+"'")
-        fetchResult = sqlite_cur.fetchall()
-        name = ""
-        if fetchResult != []:
-            if fetchResult[0][0] != None:
-                namelength = bytearray(fetchResult[0][0])[1]
-                name = bytearray(fetchResult[0][0])[2:2+namelength].decode("utf-8")
+        try:
+            sqlite_cur.execute("select dbContactRemark,dbContactChatRoom from Friend where userName='"+WXID+"'")
+            fetchResult = sqlite_cur.fetchall()
+            if fetchResult != []:
+                if fetchResult[0][0] != None:
+                    namelength = bytearray(fetchResult[0][0])[1]
+                    name = bytearray(fetchResult[0][0])[2:2+namelength].decode("utf-8")
+        except Exception:
+            pass
+        
     return name
 
 def GetRowNum(chatroom,Des=2):

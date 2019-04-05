@@ -3,6 +3,7 @@ import basicTool
 import basicData
 import timeAnalyse
 import usageAnalyse
+import groupAnalyse
 import wordcloudAnalyse
 
 def AutoRun(outputdir = "./outputs"):
@@ -18,6 +19,16 @@ def AutoRun(outputdir = "./outputs"):
     basicData.MostEmoji(chatrooms_group, chatrooms_single, filename=outputdir+"/表情包数据")
     print("正在生成消息类型图...")
     basicData.TypeAnalyse(chatrooms_single, filename=outputdir+"/消息类型（仅好友）（饼图）")
+    print("正在生成群聊数据...")
+    groupAnalyse.GroupRankingAll(chatrooms_group, filename=outputdir+"/所有群聊发出消息排名（柱状图）")
+    chatrooms_temp = []
+    for chatroom in chatrooms_group:
+        chatrooms_temp.append((chatroom,basicTool.GetRowNum(chatroom)))
+    chatrooms_top_group = sorted(chatrooms_temp, key=lambda x: x[1],reverse=True)[:3]
+    counter = 0
+    for i in chatrooms_top_group:
+        counter += 1
+        groupAnalyse.GroupRankingSingle(i[0],filename=outputdir+"/"+str(counter)+".排名前三群聊中的发出消息排名（柱状图）", num = 25, Des=2, title=basicTool.GetName(i[0]))
     print("正在生成消息总量图...")
     basicData.RowAnalyse(chatrooms_single, filename=outputdir+"/消息总量（柱状图）")
     print("正在获取深夜消息...")
