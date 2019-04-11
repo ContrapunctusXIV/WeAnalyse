@@ -29,14 +29,19 @@ def WordCloudSingle(chatroom,filename="wc_single",maxwords=200,Des=2,from_user="
     message_list = []
     for row in basicTool.GetData(chatroom=chatroom,columns=["Message","Type","SentFrom","Des"]):
         if row[1]==1:
-            if row[3]==Des:
+            if Des==2:
                 if from_user=="":
-                    counter2 += 1
                     message_list.append(row[0])
                 else:
                     if row[2]==from_user:
-                        counter2 += 1
                         message_list.append(row[0])
+            else:
+                if row[3]==Des:
+                    if from_user=="":
+                        message_list.append(row[0])
+                    else:
+                        if row[2]==from_user:
+                            message_list.append(row[0])
     Normal(message_list,filename = filename, maxwords = maxwords, title=title)
 
 def Normal(params,filename = "wc_normal",maxwords = 200,title=""):
@@ -88,10 +93,13 @@ def Normal(params,filename = "wc_normal",maxwords = 200,title=""):
     # wordcloud.render(filename+".pdf")
 
 if __name__=='__main__':
-    chatrooms_group = basicTool.GetChatrooms(typename=1)
-    chatrooms_single = basicTool.GetChatrooms(typename=2)
-    chatrooms_all = chatrooms_group + chatrooms_single
-    WordcloudAll(chatrooms_single,filename="接收词频（个人）（词云图）",maxwords=100,Des=1)
-    WordcloudAll(chatrooms_group,filename="发送词频（群组）（词云图）",maxwords=50,Des=0)
-    WordcloudAll(chatrooms_single,filename="发送词频（个人）（词云图）",maxwords=100,Des=0)
-    WordcloudAll(chatrooms_all,filename="发送词频（全部）（词云图）",maxwords=100,Des=0)
+    # chatrooms_group = basicTool.GetChatrooms(typename=1)
+    # chatrooms_single = basicTool.GetChatrooms(typename=2)
+    # chatrooms_all = chatrooms_group + chatrooms_single
+    # WordcloudAll(chatrooms_single,filename="接收词频（个人）（词云图）",maxwords=100,Des=1)
+    # WordcloudAll(chatrooms_group,filename="发送词频（群组）（词云图）",maxwords=50,Des=0)
+    # WordcloudAll(chatrooms_single,filename="发送词频（个人）（词云图）",maxwords=100,Des=0)
+    # WordcloudAll(chatrooms_all,filename="发送词频（全部）（词云图）",maxwords=100,Des=0)
+    # WordcloudAll(chatrooms_group,filename="发送词频（群组）（词云图）",maxwords=50,Des=0)
+    print(basicTool.GetWXID("Chat_67183be064c8c3ef11df9bb7a53014c8"))
+    WordCloudSingle("Chat_67183be064c8c3ef11df9bb7a53014c8",filename="index",maxwords=200,Des=2)
