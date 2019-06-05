@@ -18,11 +18,15 @@ def TimeAll(chatrooms,chartname="",filename="time_ana_all",Des=2):
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
-
-    for chatroom in chatrooms:
-        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
-            if row[2] == Des:
+    if Des == 2:
+        for chatroom in chatrooms:
+            for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"]):
                 message_list.append(row)
+    else:
+        for chatroom in chatrooms:
+            for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
+                if row[2] == Des:
+                    message_list.append(row)
     Normal(message_list,chartname=chartname,filename=filename)
 
 def TimeSingle(chatroom,chartname="",filename="time_ana_single",Des=2):
@@ -33,9 +37,13 @@ def TimeSingle(chatroom,chartname="",filename="time_ana_single",Des=2):
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
-    for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
-        if row[2] == Des:
+    if Des == 2:
+        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"]):
             message_list.append(row)
+    else:
+        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
+            if row[2] == Des:
+                message_list.append(row)
     Normal(message_list,chartname=chartname,filename=filename)
     
 def Normal(params,chartname="",filename="time_ana"):
@@ -44,6 +52,7 @@ def Normal(params,chartname="",filename="time_ana"):
     chartname：str，图表名
     filename：str，文件名，存储在output文件夹下
     '''
+    
     time_list = []
     counter = 0
     for row in params:
@@ -186,8 +195,9 @@ def RowLine(chatrooms,filename):
 
 if __name__=='__main__':
     # chatrooms_group = basicTool.GetChatrooms(typename=1)
-    chatrooms_single = basicTool.GetChatrooms(typename=2)
+    # chatrooms_single = basicTool.GetChatrooms(typename=2)
     # chatrooms_all = chatrooms_group + chatrooms_single
     # TimeAll(chatrooms_single, chartname="时频分布-接收（个人）",filename="时频分布-接收（个人）（柱状图）",Des=1)
     # TimeAll(chatrooms_all, chartname="时频分布-发出（全部）",filename="时频分布-发出（全部）（柱状图）",Des=0)
-    RowLine(chatrooms_single,filename="总量走势（折线图）")
+    TimeSingle("Chat_67183be064c8c3ef11df9bb7a53014c8",filename="thedeadgroup_time")
+    # RowLine(["Chat_67183be064c8c3ef11df9bb7a53014c8"],filename="thedeadgroup_rowline")

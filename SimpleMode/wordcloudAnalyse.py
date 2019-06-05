@@ -102,4 +102,4 @@ if __name__=='__main__':
     # WordcloudAll(chatrooms_all,filename="发送词频（全部）（词云图）",maxwords=100,Des=0)
     # WordcloudAll(chatrooms_group,filename="发送词频（群组）（词云图）",maxwords=50,Des=0)
     print(basicTool.GetWXID("Chat_67183be064c8c3ef11df9bb7a53014c8"))
-    WordCloudSingle("Chat_67183be064c8c3ef11df9bb7a53014c8",filename="index",maxwords=200,Des=2)
+    WordCloudSingle("Chat_67183be064c8c3ef11df9bb7a53014c8",filename="thedeadgroup",maxwords=200,Des=2)

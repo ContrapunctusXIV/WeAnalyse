@@ -16,15 +16,25 @@ def UsageAll(chatrooms,chartname="",filename="usage_ana_all",Des=0):
     Des：0：发出，1：接收，2：全部
     '''
     CreateTime_counter = {}
-    for i in chatrooms:
-        for j in basicTool.GetData(i,["CreateTime","Des"]):
-            if j[1] == Des:
+    if Des == 2:
+        for i in chatrooms:
+            for j in basicTool.GetData(i,["CreateTime"]):
                 time_array = time.localtime(j[0])
                 CreateTime = time.strftime("%Y-%m-%d", time_array)
                 if CreateTime in CreateTime_counter:
                     CreateTime_counter[CreateTime] += 1
                 else:
                     CreateTime_counter[CreateTime] = 1
+    else:
+        for i in chatrooms:
+            for j in basicTool.GetData(i,["CreateTime","Des"]):
+                if j[1] == Des:
+                    time_array = time.localtime(j[0])
+                    CreateTime = time.strftime("%Y-%m-%d", time_array)
+                    if CreateTime in CreateTime_counter:
+                        CreateTime_counter[CreateTime] += 1
+                    else:
+                        CreateTime_counter[CreateTime] = 1
     sorted_list = sorted(CreateTime_counter.items(), key=operator.itemgetter(0),reverse=False)
     Normal(sorted_list,chartname=chartname,filename=filename)
 
@@ -36,14 +46,23 @@ def UsageSingle(chatroom,chartname="",filename="usage_ana_single",Des=2):
     Des：0：发出，1：接收，2：全部
     '''
     CreateTime_counter = {}
-    for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime","Des"]):
-        if i[1] == Des:
+    if Des == 2:
+        for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime"]):
             time_array = time.localtime(i[0])
             CreateTime = time.strftime("%Y-%m-%d", time_array)
             if CreateTime in CreateTime_counter:
                 CreateTime_counter[CreateTime] += 1
             else:
                 CreateTime_counter[CreateTime] = 1
+    else:
+        for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime","Des"]):
+            if i[1] == Des:
+                time_array = time.localtime(i[0])
+                CreateTime = time.strftime("%Y-%m-%d", time_array)
+                if CreateTime in CreateTime_counter:
+                    CreateTime_counter[CreateTime] += 1
+                else:
+                    CreateTime_counter[CreateTime] = 1
     sorted_list = sorted(CreateTime_counter.items(), key=operator.itemgetter(0),reverse=False)
     Normal(sorted_list,chartname=chartname,filename=filename)
     
@@ -156,10 +175,11 @@ def Lonelydude(chatrooms,filename="lonelydude"):
             for i in value:
                 f.write(basicTool.GetName(key)+": "+i+"\n")
 if __name__=='__main__':
-    chatrooms_group = basicTool.GetChatrooms(typename=1)
-    chatrooms_single = basicTool.GetChatrooms(typename=2)
-    chatrooms_all = chatrooms_group + chatrooms_single
-    Lonelydude(chatrooms_single,filename="未回复的消息")
-    UsageAll(chatrooms_all,chartname="使用日历-发出（全部）",filename="使用日历-发出（全部）（日历图）",Des=0)
-    UsageAll(chatrooms_single, chartname="使用日历-发出（个人）",filename="使用日历-发出（个人）（日历图）",Des=0)
-    UsageAll(chatrooms_single, chartname="使用日历-接收（个人）",filename="使用日历-接收（个人）（日历图）",Des=1)
+    # chatrooms_group = basicTool.GetChatrooms(typename=1)
+    # chatrooms_single = basicTool.GetChatrooms(typename=2)
+    # chatrooms_all = chatrooms_group + chatrooms_single
+    # Lonelydude(chatrooms_single,filename="未回复的消息")
+    # UsageAll(chatrooms_all,chartname="使用日历-发出（全部）",filename="使用日历-发出（全部）（日历图）",Des=0)
+    # UsageAll(chatrooms_single, chartname="使用日历-发出（个人）",filename="使用日历-发出（个人）（日历图）",Des=0)
+    # UsageAll(chatrooms_single, chartname="使用日历-接收（个人）",filename="使用日历-接收（个人）（日历图）",Des=1)
+    UsageSingle("Chat_67183be064c8c3ef11df9bb7a53014c8", chartname="",filename="thedeadgroup_usage",Des=2)

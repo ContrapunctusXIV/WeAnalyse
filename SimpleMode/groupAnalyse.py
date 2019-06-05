@@ -69,14 +69,15 @@ def Normal(params, filename = "group_ranking", num = 10, title=""):
     grid.render(path=filename+".html")
 
 if __name__=='__main__':
-    chatrooms_group = basicTool.GetChatrooms(typename=1)
-    GroupRankingAll(chatrooms_group,filename="group_ranking_single", num = 25, Des=2, title="")
-    chatrooms_temp = []
-    for chatroom in chatrooms_group:
-        chatrooms_temp.append((chatroom,basicTool.GetRowNum(chatroom)))
-    chatrooms_top_group = sorted(chatrooms_temp, key=lambda x: x[1],reverse=True)[:3]
-    counter = 0
-    for i in chatrooms_top_group:
-        counter += 1
-        groupname = basicTool.GetName(i[0])
-        GroupRankingSingle(i[0],filename=str(counter)+".排名前三群聊中的发出消息排名（柱状图）", num = 25, Des=2, title=groupname)
+    GroupRankingSingle("Chat_67183be064c8c3ef11df9bb7a53014c8",filename="thedeadgroup_userranking_v", num = 25, Des=2, title="")
+    # chatrooms_group = basicTool.GetChatrooms(typename=1)
+    # GroupRankingAll(chatrooms_group,filename="group_ranking_single", num = 25, Des=2, title="")
+    # chatrooms_temp = []
+    # for chatroom in chatrooms_group:
+    #     chatrooms_temp.append((chatroom,basicTool.GetRowNum(chatroom)))
+    # chatrooms_top_group = sorted(chatrooms_temp, key=lambda x: x[1],reverse=True)[:3]
+    # counter = 0
+    # for i in chatrooms_top_group:
+    #     counter += 1
+    #     groupname = basicTool.GetName(i[0])
+    #     GroupRankingSingle(i[0],filename=str(counter)+".排名前三群聊中的发出消息排名（柱状图）", num = 25, Des=2, title=groupname)
