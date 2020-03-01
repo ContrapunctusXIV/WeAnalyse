@@ -10,40 +10,30 @@ import basicTool
 import operator
 from pyecharts import Bar, configure
 # from pyecharts_snapshot.main import make_a_snapshot
-
-def TimeAll(chatrooms,chartname="",filename="time_ana_all",Des=2):
+#时频分布
+def TimeAll(chatrooms,chartname="",filename="time_ana_all",Des=2,start_time="1970-01-02", end_time=""):
     '''
+    chatrooms：list，聊天记录表，如["Chat_67183be064c8c3ef11df9bb7a53014c8"]
     chartname：str，图表名
     filename：str，文件名，存储在outputs文件夹下
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
-    if Des == 2:
-        for chatroom in chatrooms:
-            for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"]):
-                message_list.append(row)
-    else:
-        for chatroom in chatrooms:
-            for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
-                if row[2] == Des:
-                    message_list.append(row)
+    for chatroom in chatrooms:
+        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"],Des=Des,start_time=start_time, end_time=end_time):
+            message_list.append(row)
     Normal(message_list,chartname=chartname,filename=filename)
 
-def TimeSingle(chatroom,chartname="",filename="time_ana_single",Des=2):
+def TimeSingle(chatroom,chartname="",filename="time_ana_single",Des=2,start_time="1970-01-02", end_time=""):
     '''
-    chatroom：str，聊天对象
+    chatroom：str，聊天记录表，如"Chat_67183be064c8c3ef11df9bb7a53014c8"
     chartname：str，图表名
     filename：str，文件名，存储在output文件夹下
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
-    if Des == 2:
-        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"]):
-            message_list.append(row)
-    else:
-        for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime","Des"]):
-            if row[2] == Des:
-                message_list.append(row)
+    for row in basicTool.GetData(chatroom=chatroom,columns=["id","CreateTime"],Des=Des, start_time=start_time, end_time=end_time):
+        message_list.append(row)
     Normal(message_list,chartname=chartname,filename=filename)
     
 def Normal(params,chartname="",filename="time_ana"):
@@ -153,21 +143,22 @@ def Normal(params,chartname="",filename="time_ana"):
     bar.render(path=filename+".html")
     # bar.render(path=filename+".pdf")
 
-def RowLine(chatrooms,filename):
+def RowLine(chatrooms,filename,limit=10,start_time="1970-01-02", end_time=""):
     '''
     统计聊天条数走势
+    chatrooms：list，聊天记录表，如["Chat_67183be064c8c3ef11df9bb7a53014c8"]
     '''
     chatrooms_temp = []
     for chatroom in chatrooms:
-        chatrooms_temp.append((chatroom,basicTool.GetRowNum(chatroom)))
+        chatrooms_temp.append((chatroom,basicTool.GetRowNum(chatroom,start_time=start_time, end_time=end_time)))
     chatrooms_sorted = sorted(chatrooms_temp, key=operator.itemgetter(1),reverse=True)
-    if len(chatrooms_sorted) >= 10:
-        chatrooms_inuse = [i[0] for i in chatrooms_sorted[:10]]
+    if len(chatrooms_sorted) >= limit:
+        chatrooms_inuse = [i[0] for i in chatrooms_sorted[:limit]]
     else:
         chatrooms_inuse = [i[0] for i in chatrooms_sorted]
     id_time_dict = {}
     for i in range(len(chatrooms_inuse)):
-        temp_arr = np.array(basicTool.GetData(chatrooms_inuse[i],["id","CreateTime"]),dtype="int")
+        temp_arr = np.array(basicTool.GetData(chatrooms_inuse[i],["id","CreateTime"],start_time=start_time, end_time=end_time),dtype="int")
         id_time_dict[chatrooms_inuse[i]] = np.append(temp_arr[temp_arr[:,0] % 20 == 1],[temp_arr[-1,:]],axis=0)
 
     f = plt.figure(figsize=(16, 9))
@@ -190,7 +181,6 @@ def RowLine(chatrooms,filename):
         # plt.xlabel(basicTool.GetName(key),fontname='symbola')
         plt.legend(loc='upper left')
 
-    # plt.show()
     f.savefig(filename+".pdf", bbox_inches='tight')
 
 if __name__=='__main__':

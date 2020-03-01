@@ -6,35 +6,38 @@ import numpy as np
 from pyecharts import Bar,Grid
 # from pyecharts_snapshot.main import make_a_snapshot
 
-def GroupRankingAll(chatrooms,filename="group_ranking_all", num = 10 ,Des=2, title=""):
+def GroupRankingAll(chatrooms,filename="group_ranking_all", num = 10, Des=2, start_time="1970-01-01", end_time="", title=""):
     '''
     统计群里发言最多的人
     chatrooms：list，聊天记录表
     filename：str，文件名，存储在output文件夹下
+    num：int，横坐标数量，即显示的用户数
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
     for chatroom in chatrooms:
-        for row in basicTool.GetData(chatroom=chatroom,columns=["SentFrom","Message"]):
+        for row in basicTool.GetData(chatroom=chatroom,columns=["SentFrom","Message"],start_time=start_time,end_time=end_time,Type=1):
             if row[0]!="system":
                 message_list.append(row)
     Normal(message_list, filename = filename, num = num, title=title)
 
-def GroupRankingSingle(chatroom,filename="group_ranking_single", num = 10, Des=2, title=""):
+def GroupRankingSingle(chatroom,filename="group_ranking_single", num = 10, Des=2, start_time="1970-01-01", end_time="", title=""):
     '''
     统计群里发言最多的人
     chatrooms：list，聊天记录表
     filename：str，文件名，存储在output文件夹下
+    num：int，横坐标数量，即显示的用户数
     Des：0：发出，1：接收，2：全部
     '''
     message_list = []
-    for row in basicTool.GetData(chatroom=chatroom,columns=["SentFrom","Message"]):
+    for row in basicTool.GetData(chatroom=chatroom,columns=["SentFrom","Message"],start_time=start_time,end_time=end_time,Type=1):
         if row[0]!="system":
             message_list.append(row)
     Normal(message_list, filename = filename, num = num, title=title)
 
 def Normal(params, filename = "group_ranking", num = 10, title=""):
     '''
+    num：int，横坐标数量，即显示的用户数
     '''
     # getNamed_list = [[basicTool.GetName(i[0]),i[1]] for i in params]
     id_counter_dict = dict.fromkeys([i[0] for i in params], 0)
@@ -53,7 +56,15 @@ def Normal(params, filename = "group_ranking", num = 10, title=""):
     grid=Grid()
     bar = Bar(title=title,title_pos="40%")
     if len(x_list)<num:
-        bar.add("", x_list, y_list, is_convert=True)
+        bar.add("", x_list, y_list,
+        is_label_show=True,
+        xaxis_interval=0,
+        is_xaxislabel_align=True,
+        xaxis_rotate=30,
+        is_xaxis_show=True,
+        is_yaxis_show=True,
+        # is_datazoom_show=True,
+        is_splitline_show=False)
     else:
         bar.add("", x_list[:num], 
         y_list[:num],

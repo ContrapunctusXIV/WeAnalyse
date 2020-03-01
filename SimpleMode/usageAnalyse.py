@@ -8,7 +8,7 @@ import basicTool
 from pyecharts import HeatMap, Grid
 # from pyecharts_snapshot.main import make_a_snapshot
 
-def UsageAll(chatrooms,chartname="",filename="usage_ana_all",Des=0):
+def UsageAll(chatrooms,chartname="",filename="usage_ana_all",Des=0,start_time="1970-01-02", end_time=""):
     '''
     chartname：str，图表名
     filename：str，文件名，存储在output文件夹下
@@ -16,29 +16,18 @@ def UsageAll(chatrooms,chartname="",filename="usage_ana_all",Des=0):
     Des：0：发出，1：接收，2：全部
     '''
     CreateTime_counter = {}
-    if Des == 2:
-        for i in chatrooms:
-            for j in basicTool.GetData(i,["CreateTime"]):
-                time_array = time.localtime(j[0])
-                CreateTime = time.strftime("%Y-%m-%d", time_array)
-                if CreateTime in CreateTime_counter:
-                    CreateTime_counter[CreateTime] += 1
-                else:
-                    CreateTime_counter[CreateTime] = 1
-    else:
-        for i in chatrooms:
-            for j in basicTool.GetData(i,["CreateTime","Des"]):
-                if j[1] == Des:
-                    time_array = time.localtime(j[0])
-                    CreateTime = time.strftime("%Y-%m-%d", time_array)
-                    if CreateTime in CreateTime_counter:
-                        CreateTime_counter[CreateTime] += 1
-                    else:
-                        CreateTime_counter[CreateTime] = 1
+    for i in chatrooms:
+        for j in basicTool.GetData(i,["CreateTime"],Des=Des,start_time=start_time, end_time=end_time):
+            time_array = time.localtime(j[0])
+            CreateTime = time.strftime("%Y-%m-%d", time_array)
+            if CreateTime in CreateTime_counter:
+                CreateTime_counter[CreateTime] += 1
+            else:
+                CreateTime_counter[CreateTime] = 1
     sorted_list = sorted(CreateTime_counter.items(), key=operator.itemgetter(0),reverse=False)
     Normal(sorted_list,chartname=chartname,filename=filename)
 
-def UsageSingle(chatroom,chartname="",filename="usage_ana_single",Des=2):
+def UsageSingle(chatroom,chartname="",filename="usage_ana_single",Des=2,start_time="1970-01-02", end_time=""):
     '''
     chatroom：str，聊天对象
     chartname：str，图表名
@@ -46,23 +35,13 @@ def UsageSingle(chatroom,chartname="",filename="usage_ana_single",Des=2):
     Des：0：发出，1：接收，2：全部
     '''
     CreateTime_counter = {}
-    if Des == 2:
-        for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime"]):
-            time_array = time.localtime(i[0])
-            CreateTime = time.strftime("%Y-%m-%d", time_array)
-            if CreateTime in CreateTime_counter:
-                CreateTime_counter[CreateTime] += 1
-            else:
-                CreateTime_counter[CreateTime] = 1
-    else:
-        for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime","Des"]):
-            if i[1] == Des:
-                time_array = time.localtime(i[0])
-                CreateTime = time.strftime("%Y-%m-%d", time_array)
-                if CreateTime in CreateTime_counter:
-                    CreateTime_counter[CreateTime] += 1
-                else:
-                    CreateTime_counter[CreateTime] = 1
+    for i in basicTool.GetData(chatroom=chatroom,columns=["CreateTime"],Des=Des,start_time=start_time, end_time=end_time):
+        time_array = time.localtime(i[0])
+        CreateTime = time.strftime("%Y-%m-%d", time_array)
+        if CreateTime in CreateTime_counter:
+            CreateTime_counter[CreateTime] += 1
+        else:
+            CreateTime_counter[CreateTime] = 1
     sorted_list = sorted(CreateTime_counter.items(), key=operator.itemgetter(0),reverse=False)
     Normal(sorted_list,chartname=chartname,filename=filename)
     
@@ -99,7 +78,7 @@ def Normal(params,chartname="",filename="usage_ana"):
     heatmap.render(path=filename+".html")
     # heatmap.render(path=filename+".pdf")
 
-def Lonelydude(chatrooms,filename="lonelydude"):
+def Lonelydude(chatrooms,filename="lonelydude",start_time="1970-01-02", end_time=""):
     '''
     用于获取发出但没有收到回复的消息和收到但没有回复对方的消息
     filename：str，文件名，存储在output文件夹下
@@ -108,18 +87,15 @@ def Lonelydude(chatrooms,filename="lonelydude"):
     CreateTime_counter_to = {}
     CreateTime_counter_from = {}
     for i in chatrooms:
-        for j in basicTool.GetData(i,["CreateTime","Des"]):
+        for j in basicTool.GetData(i,["CreateTime","Des"],start_time=start_time, end_time=end_time):
+            time_array = time.localtime(j[0])
+            CreateTime = time.strftime("%Y-%m-%d", time_array)
             if j[1] == 0:
-                time_array = time.localtime(j[0])
-                CreateTime = time.strftime("%Y-%m-%d", time_array)
                 if CreateTime in CreateTime_counter_to:
                     CreateTime_counter_to[CreateTime] += 1
                 else:
                     CreateTime_counter_to[CreateTime] = 1
-        for k in basicTool.GetData(i,["CreateTime","Des"]):
-            if k[1] == 1:
-                time_array = time.localtime(k[0])
-                CreateTime = time.strftime("%Y-%m-%d", time_array)
+            elif j[1] == 1:
                 if CreateTime in CreateTime_counter_from:
                     CreateTime_counter_from[CreateTime] += 1
                 else:
